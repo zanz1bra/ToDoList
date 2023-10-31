@@ -13,18 +13,20 @@ class ToDoTableViewController: UITableViewController {
     var managedObjectContext: NSManagedObjectContext?
 //    var toDo: [String] = []
     var toDoLists = [ToDoList]()
+    var request: NSFetchRequest<ToDoList>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate
         else {return}
         managedObjectContext = appDelegate.persistentContainer.viewContext
+        request = NSFetchRequest<ToDoList>(entityName: "ToDoList")
         loadCoreData()
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+//         self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
     
     
@@ -35,7 +37,8 @@ class ToDoTableViewController: UITableViewController {
             print(textFieldValue)
         }
             
-//            Add another text field (another attribute inside entity
+        #warning("Add another text field (another attribute inside entity)")
+        
         alertController.addTextField { textFieldValue in textFieldValue.placeholder = "Your item detail here..."
             print(textFieldValue)
         }
@@ -62,9 +65,23 @@ class ToDoTableViewController: UITableViewController {
         present(alertController, animated: true)
     }
     
+    @IBAction func deleteAllItemsTapped(_ sender: Any) {
+#warning("Alert controller comes up with confirmation Do you really want to delete all?. You can press Delete or Cancel")
+        
+        let actionSheet = UIAlertController(title: "Delete All?", message: "Are you shure you want to delete all?", preferredStyle: .actionSheet)
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+            self.deleteAllCoreData(request: self.request)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        actionSheet.addAction(deleteAction)
+        actionSheet.addAction(cancelAction)
+        
+        present(actionSheet, animated: true)
+    }
 }
 
-#warning("Alert controller comes up with confirmation Do you really want to delete all?. You can press Delete or Cancel")
+
 
 
 // MARK: - CoreData logic
@@ -90,8 +107,21 @@ extension ToDoTableViewController {
         loadCoreData()
     }
     
-    func deleteAllCoreData() {
+    func deleteAllCoreData(request: NSFetchRequest<ToDoList>) {
         #warning("Delete all core data with confirmation (the alert)")
+        do {
+            let items = try managedObjectContext?.fetch(request)
+            if let items = items {
+                for item in items {
+                    managedObjectContext?.delete(item)
+                }
+                try managedObjectContext?.save()
+                loadCoreData()
+            }
+        } catch {
+            fatalError("Error in deleting core data!")
+        }
+        
     }
 }
 
@@ -115,6 +145,7 @@ extension ToDoTableViewController {
 
         let toDoList = toDoLists[indexPath.row]
         cell.textLabel?.text = toDoList.item
+        cell.detailTextLabel?.text = toDoList.subtitle
         
         cell.accessoryType = toDoList.completed ? .checkmark : .none
 

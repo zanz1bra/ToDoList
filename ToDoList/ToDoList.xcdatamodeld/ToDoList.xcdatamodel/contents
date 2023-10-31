@@ -3,5 +3,6 @@
     <entity name="ToDoList" representedClassName="ToDoList" syncable="YES" codeGenerationType="class">
         <attribute name="completed" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="item" optional="YES" attributeType="String"/>
+        <attribute name="subtitle" optional="YES" attributeType="String"/>
     </entity>
 </model>
