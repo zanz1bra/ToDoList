@@ -32,26 +32,25 @@ class ToDoTableViewController: UITableViewController {
     
     @IBAction func addNewItemTapped(_ sender: Any) {
         let alertController = UIAlertController(title: "To Do List", message: "Add a new item", preferredStyle: .alert)
-        alertController.addTextField { textFieldValue in
-            textFieldValue.placeholder = "Your item title here..."
-            print(textFieldValue)
+        alertController.addTextField { itemTextField in
+            itemTextField.placeholder = "Your item title here..."
         }
             
-        #warning("Add another text field (another attribute inside entity)")
+        #warning("Add another text field")
         
-        alertController.addTextField { textFieldValue in textFieldValue.placeholder = "Your item detail here..."
-            print(textFieldValue)
+        alertController.addTextField { subtitleTextField in subtitleTextField.placeholder = "Your item detail here..."
         }
         
         
-//        This is add action
         let addActionButton = UIAlertAction(title: "Add", style: .default) { addActions in
             let textField = alertController.textFields?.first
+            let subtitleTextField = alertController.textFields?[1]
             
             let entity = NSEntityDescription.entity(forEntityName: "ToDoList", in: self.managedObjectContext!)
             let list = NSManagedObject(entity: entity!, insertInto: self.managedObjectContext)
             
             list.setValue(textField?.text, forKey: "item")
+            list.setValue(subtitleTextField?.text, forKey: "subtitle")
             self.saveCoreData()
 //            self.toDo.append(textField!.text!)
 //            self.tableView.reloadData()
@@ -108,7 +107,7 @@ extension ToDoTableViewController {
     }
     
     func deleteAllCoreData(request: NSFetchRequest<ToDoList>) {
-        #warning("Delete all core data with confirmation (the alert)")
+#warning("Delete all core data with confirmation (the alert)")
         do {
             let items = try managedObjectContext?.fetch(request)
             if let items = items {
@@ -147,7 +146,14 @@ extension ToDoTableViewController {
         cell.textLabel?.text = toDoList.item
         cell.detailTextLabel?.text = toDoList.subtitle
         
-        cell.accessoryType = toDoList.completed ? .checkmark : .none
+        if toDoList.completed {
+            let checkmark = UIImage(systemName: "checkmark")?.withTintColor(.black, renderingMode: .alwaysOriginal)
+            cell.accessoryView = UIImageView(image: checkmark)
+        } else {
+            cell.accessoryView = nil
+        }
+        
+//        cell.accessoryType = toDoList.completed ? .checkmark : .none
 
         return cell
     }
