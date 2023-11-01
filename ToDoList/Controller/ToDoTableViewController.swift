@@ -21,6 +21,9 @@ class ToDoTableViewController: UITableViewController {
         else {return}
         managedObjectContext = appDelegate.persistentContainer.viewContext
         request = NSFetchRequest<ToDoList>(entityName: "ToDoList")
+        
+        tableView.isEditing = true
+        
         loadCoreData()
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -184,12 +187,14 @@ extension ToDoTableViewController {
     }
     
 
-    /*
+    
     // Override to support rearranging the table view.
     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
+        let movedItem = toDoLists[fromIndexPath.row]
+        toDoLists.remove(at: fromIndexPath.row)
+        toDoLists.insert(movedItem, at: to.row)
     }
-    */
+    
 
     /*
     // Override to support conditional rearranging of the table view.
