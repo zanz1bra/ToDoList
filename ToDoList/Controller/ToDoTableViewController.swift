@@ -156,6 +156,9 @@ extension ToDoTableViewController {
             cell.accessoryView = nil
         }
         
+        cell.showsReorderControl = false
+        cell.backgroundColor = UIColor.systemYellow
+        
 //        cell.accessoryType = toDoList.completed ? .checkmark : .none
 
         return cell
@@ -165,6 +168,11 @@ extension ToDoTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         toDoLists[indexPath.row].completed = !toDoLists[indexPath.row].completed
+        
+        tableView.reloadRows(at: [indexPath], with: .none)
+        
+        let selectedRow = toDoLists[indexPath.row]
+        
         saveCoreData()
     }
     
@@ -183,6 +191,7 @@ extension ToDoTableViewController {
             // Delete the row from the data source
             managedObjectContext?.delete(toDoLists[indexPath.row])
         }
+        
         saveCoreData()
     }
     
@@ -193,6 +202,12 @@ extension ToDoTableViewController {
         let movedItem = toDoLists[fromIndexPath.row]
         toDoLists.remove(at: fromIndexPath.row)
         toDoLists.insert(movedItem, at: to.row)
+        
+        if let cell = tableView.cellForRow(at: to) {
+            cell.showsReorderControl = false
+        }
+        
+        saveCoreData()
     }
     
 
