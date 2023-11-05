@@ -11,9 +11,11 @@ import CoreData
 class ToDoTableViewController: UITableViewController {
     
     var managedObjectContext: NSManagedObjectContext?
-//    var toDo: [String] = []
     var toDoLists = [ToDoList]()
     var request: NSFetchRequest<ToDoList>!
+    private var cellID = "toDoCell"
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,9 +24,10 @@ class ToDoTableViewController: UITableViewController {
         managedObjectContext = appDelegate.persistentContainer.viewContext
         request = NSFetchRequest<ToDoList>(entityName: "ToDoList")
         
-        tableView.isEditing = true
+//        tableView.isEditing = true
         
         loadCoreData()
+        setupView()
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -32,14 +35,14 @@ class ToDoTableViewController: UITableViewController {
 //         self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
     
-    
-    @IBAction func addNewItemTapped(_ sender: Any) {
+    @objc func addNewItem() {
+        print("Clicked")
         let alertController = UIAlertController(title: "To Do List", message: "Add a new item", preferredStyle: .alert)
         alertController.addTextField { itemTextField in
             itemTextField.placeholder = "Your item title here..."
         }
-            
-        #warning("Add another text field")
+        
+//        #warning("Add another text field")
         
         alertController.addTextField { subtitleTextField in subtitleTextField.placeholder = "Your item detail here..."
         }
@@ -55,8 +58,6 @@ class ToDoTableViewController: UITableViewController {
             list.setValue(textField?.text, forKey: "item")
             list.setValue(subtitleTextField?.text, forKey: "subtitle")
             self.saveCoreData()
-//            self.toDo.append(textField!.text!)
-//            self.tableView.reloadData()
         }
         
         let cancelActionButton = UIAlertAction(title: "Cancel", style: .destructive)
@@ -67,8 +68,78 @@ class ToDoTableViewController: UITableViewController {
         present(alertController, animated: true)
     }
     
+    @objc func longPress (sender: UILongPressGestureRecognizer) {
+        if sender.state == UIGestureRecognizer.State.began {
+            let touchPath = sender.location(in: tableView)
+            if let indexPath = tableView.indexPathForRow(at: touchPath) {
+                print(indexPath)
+                basicActionSheet(title: toDoLists[indexPath.row].item, message: "Completed \(toDoLists[indexPath.row].completed)")
+            }
+        }
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .systemYellow
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
+        
+        let addBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(addNewItem))
+        self.navigationItem.rightBarButtonItem = addBarButtonItem
+        
+        let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
+        view.addGestureRecognizer(longPressRecognizer)
+        
+        setupNavigationBarView()
+    }
+    
+    private func setupNavigationBarView() {
+        title = "To Do List"
+        let titleImage = UIImage(systemName: "plus.rectangle.fill")
+        let imageView = UIImageView(image: titleImage)
+        self.navigationItem.titleView = imageView
+        
+        navigationController?.navigationBar.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        navigationController?.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.label]
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.tintColor = .label
+    }
+    
+    
+//    @IBAction func addNewItemTapped(_ sender: Any) {
+//          let alertController = UIAlertController(title: "To Do List", message: "Add a new item", preferredStyle: .alert)
+    //        alertController.addTextField { itemTextField in
+    //            itemTextField.placeholder = "Your item title here..."
+    //        }
+    //
+    ////        #warning("Add another text field")
+    //
+    //        alertController.addTextField { subtitleTextField in subtitleTextField.placeholder = "Your item detail here..."
+    //        }
+    //
+    //
+    //        let addActionButton = UIAlertAction(title: "Add", style: .default) { addActions in
+    //            let textField = alertController.textFields?.first
+    //            let subtitleTextField = alertController.textFields?[1]
+    //
+    //            let entity = NSEntityDescription.entity(forEntityName: "ToDoList", in: self.managedObjectContext!)
+    //            let list = NSManagedObject(entity: entity!, insertInto: self.managedObjectContext)
+    //
+    //            list.setValue(textField?.text, forKey: "item")
+    //            list.setValue(subtitleTextField?.text, forKey: "subtitle")
+    //            self.saveCoreData()
+    ////            self.toDo.append(textField!.text!)
+    ////            self.tableView.reloadData()
+    //        }
+    //
+    //        let cancelActionButton = UIAlertAction(title: "Cancel", style: .destructive)
+    //
+    //        alertController.addAction(addActionButton)
+    //        alertController.addAction(cancelActionButton)
+    //
+    //        present(alertController, animated: true)
+    //    }
+    
     @IBAction func deleteAllItemsTapped(_ sender: Any) {
-#warning("Alert controller comes up with confirmation Do you really want to delete all?. You can press Delete or Cancel")
+//#warning("Alert controller comes up with confirmation Do you really want to delete all?. You can press Delete or Cancel")
         
         let actionSheet = UIAlertController(title: "Delete All?", message: "Are you shure you want to delete all?", preferredStyle: .actionSheet)
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
@@ -83,6 +154,47 @@ class ToDoTableViewController: UITableViewController {
     }
 }
 
+
+extension UITableView {
+    func setEmptyView(title: String?, message: String?) {
+        let emptyView = UIView(frame: CGRect(x: self.center.x, y: self.center.y, width: self.bounds.size.width, height: self.bounds.size.height))
+        
+        let titleLabel = UILabel()
+        let messageLabel = UILabel()
+        
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        titleLabel.textColor = UIColor.label
+        titleLabel.font = UIFont(name: "Futura", size: 18)
+        
+        messageLabel.textColor = UIColor.secondaryLabel
+        messageLabel.font = UIFont(name: "Futura", size: 15)
+        
+        emptyView.addSubview(titleLabel)
+        emptyView.addSubview(messageLabel)
+        
+        titleLabel.centerYAnchor.constraint(equalTo: emptyView.centerYAnchor).isActive = true
+        titleLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        
+        messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
+//        messageLabel.leftAnchor.constraint(equalTo: emptyView.leftAnchor, constant: 20).isActive = true
+//        messageLabel.rightAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 20).isActive = true
+        messageLabel.centerXAnchor.constraint(equalTo: emptyView.centerXAnchor).isActive = true
+        
+        titleLabel.text = title
+        messageLabel.text = message
+        
+        messageLabel.numberOfLines = 0
+        messageLabel.textAlignment = .center
+        
+        self.backgroundView = emptyView
+    }
+    
+    func restoreTableViewStyle() {
+        self.backgroundView = nil
+    }
+}
 
 
 
@@ -110,7 +222,7 @@ extension ToDoTableViewController {
     }
     
     func deleteAllCoreData(request: NSFetchRequest<ToDoList>) {
-#warning("Delete all core data with confirmation (the alert)")
+// #warning("Delete all core data with confirmation (the alert)")
         do {
             let items = try managedObjectContext?.fetch(request)
             if let items = items {
@@ -125,6 +237,15 @@ extension ToDoTableViewController {
         }
         
     }
+    
+    func basicActionSheet(title: String?, message: String?) {
+        let actionSheet = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+        let cancelAction: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        actionSheet.overrideUserInterfaceStyle = .dark
+        actionSheet.addAction(cancelAction)
+        self.present(actionSheet, animated: true)
+    }
 }
 
 
@@ -137,13 +258,18 @@ extension ToDoTableViewController {
 //    }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+        if toDoLists.count == 0 {
+            tableView.setEmptyView(title: "Your to do list is empty", message: "Press ADD to create a new to do item")
+        } else {
+            tableView.restoreTableViewStyle()
+        }
+        
         return toDoLists.count
     }
     
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "toDoCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
 
         let toDoList = toDoLists[indexPath.row]
         cell.textLabel?.text = toDoList.item
@@ -198,17 +324,17 @@ extension ToDoTableViewController {
 
     
     // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-        let movedItem = toDoLists[fromIndexPath.row]
-        toDoLists.remove(at: fromIndexPath.row)
-        toDoLists.insert(movedItem, at: to.row)
-        
-        if let cell = tableView.cellForRow(at: to) {
-            cell.showsReorderControl = false
-        }
-        
-        saveCoreData()
-    }
+//    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
+//        let movedItem = toDoLists[fromIndexPath.row]
+//        toDoLists.remove(at: fromIndexPath.row)
+//        toDoLists.insert(movedItem, at: to.row)
+//        
+//        if let cell = tableView.cellForRow(at: to) {
+//            cell.showsReorderControl = false
+//        }
+//        
+//        saveCoreData()
+//    }
     
 
     /*
