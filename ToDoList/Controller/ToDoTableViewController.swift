@@ -310,10 +310,12 @@ extension ToDoTableViewController {
         detailViewController?.subtitleText = selectedToDo.subtitle
         
         self.navigationController?.pushViewController(detailViewController!, animated: true)
-
+        
         saveCoreData()
         
     }
+    
+   
     
     /*
     // Override to support conditional editing of the table view.

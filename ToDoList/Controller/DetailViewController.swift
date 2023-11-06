@@ -16,6 +16,7 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .systemYellow
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(titleLabel)
@@ -33,7 +34,7 @@ class DetailViewController: UIViewController {
         subtitleLabel.text = subtitleText
         
         titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 40).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 140).isActive = true
         
         subtitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
