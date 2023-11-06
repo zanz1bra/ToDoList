@@ -14,6 +14,7 @@ class ToDoTableViewController: UITableViewController {
     var toDoLists = [ToDoList]()
     var request: NSFetchRequest<ToDoList>!
     private var cellID = "toDoCell"
+    var detailViewController: DetailViewController?
     
     
 
@@ -23,11 +24,12 @@ class ToDoTableViewController: UITableViewController {
         else {return}
         managedObjectContext = appDelegate.persistentContainer.viewContext
         request = NSFetchRequest<ToDoList>(entityName: "ToDoList")
-        
+        detailViewController = DetailViewController()
 //        tableView.isEditing = true
         
         loadCoreData()
         setupView()
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -85,6 +87,9 @@ class ToDoTableViewController: UITableViewController {
         let addBarButtonItem = UIBarButtonItem(title: "Add", style: .done, target: self, action: #selector(addNewItem))
         self.navigationItem.rightBarButtonItem = addBarButtonItem
         
+        let deleteBarButtonItem = UIBarButtonItem(title: "Delete", style: .done, target: self, action: #selector(deleteAllItemsTapped))
+        self.navigationItem.leftBarButtonItem = deleteBarButtonItem
+        
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPress))
         view.addGestureRecognizer(longPressRecognizer)
         
@@ -141,7 +146,7 @@ class ToDoTableViewController: UITableViewController {
     @IBAction func deleteAllItemsTapped(_ sender: Any) {
 //#warning("Alert controller comes up with confirmation Do you really want to delete all?. You can press Delete or Cancel")
         
-        let actionSheet = UIAlertController(title: "Delete All?", message: "Are you shure you want to delete all?", preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(title: "Delete All?", message: "Are you shure you want to delete all tasks?", preferredStyle: .actionSheet)
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
             self.deleteAllCoreData(request: self.request)
         }
@@ -274,6 +279,7 @@ extension ToDoTableViewController {
         let toDoList = toDoLists[indexPath.row]
         cell.textLabel?.text = toDoList.item
         cell.detailTextLabel?.text = toDoList.subtitle
+        cell.showsReorderControl = true
         
         if toDoList.completed {
             let checkmark = UIImage(systemName: "checkmark")?.withTintColor(.black, renderingMode: .alwaysOriginal)
@@ -294,12 +300,13 @@ extension ToDoTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         toDoLists[indexPath.row].completed = !toDoLists[indexPath.row].completed
-        
+
         tableView.reloadRows(at: [indexPath], with: .none)
-        
+       
         let selectedRow = toDoLists[indexPath.row]
-        
+
         saveCoreData()
+        
     }
     
     /*
