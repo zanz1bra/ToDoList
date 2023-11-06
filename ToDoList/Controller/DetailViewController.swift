@@ -10,34 +10,48 @@ import UIKit
 class DetailViewController: UIViewController {
     
     var selectedToDo: ToDoList?
-
+    var titleText: String?
+    var subtitleText: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if let selectedToDo = selectedToDo {
-            let titleLabel = UILabel()
-            titleLabel.text = selectedToDo.item
-            titleLabel.frame = CGRect(x: 20, y: 100, width: 200, height: 30)
-            view.addSubview(titleLabel)
-            
-            let subtitleLabel = UILabel()
-            subtitleLabel.text = selectedToDo.subtitle
-            subtitleLabel.frame = CGRect(x: 20, y: 150, width: 200, height: 30)
-            view.addSubview(subtitleLabel)
-        } 
+        
+        let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(titleLabel)
+        
+        titleLabel.textColor = UIColor.label
+        titleLabel.font = UIFont(name: "Futura", size: 18)
+        titleLabel.text = titleText
+        
+        let subtitleLabel = UILabel()
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(subtitleLabel)
+        
+        subtitleLabel.textColor = UIColor.label
+        subtitleLabel.font = UIFont(name: "Futura", size: 15)
+        subtitleLabel.text = subtitleText
+        
+        titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 40).isActive = true
+        
+        subtitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20).isActive = true
+        
+        subtitleLabel.numberOfLines = 0
+        titleLabel.textAlignment = .center
+        subtitleLabel.textAlignment = .center
     }
     
-
     
-
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

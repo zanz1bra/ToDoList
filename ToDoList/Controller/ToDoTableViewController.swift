@@ -303,7 +303,13 @@ extension ToDoTableViewController {
 
         tableView.reloadRows(at: [indexPath], with: .none)
        
-        let selectedRow = toDoLists[indexPath.row]
+//        let selectedRow = toDoLists[indexPath.row]
+        let selectedToDo = toDoLists[indexPath.row]
+        
+        detailViewController?.titleText = selectedToDo.item
+        detailViewController?.subtitleText = selectedToDo.subtitle
+        
+        self.navigationController?.pushViewController(detailViewController!, animated: true)
 
         saveCoreData()
         
